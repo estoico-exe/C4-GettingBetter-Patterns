@@ -63,7 +63,7 @@ namespace c4_model_design
             Container landingPage = gettingBetter.AddContainer("Landing Page", "", "Flutter Web");
             Container apiRest = gettingBetter.AddContainer("API Rest", "API Rest", "NodeJS (NestJS) port 8080");
             Container userContext = gettingBetter.AddContainer("User Context", "Bounded Context del Microservicio de registro de los usuarios en la plataforma.", "NodeJS (NestJS)");
-            Container clasesContext = gettingBetter.AddContainer("Clases Context", "Bounded Context del Microservicio de asesorias.", "NodeJS (NestJS)");
+            Container classContext = gettingBetter.AddContainer("Clases Context", "Bounded Context del Microservicio de asesorias.", "NodeJS (NestJS)");
             Container paymentContext = gettingBetter.AddContainer("Payment Context", "Bounded Context del Microservicio de pasarela de pagos.", "NodeJS (NestJS)");
             Container reservationContext = gettingBetter.AddContainer("Reservation Context", "Bounded Context del Microservicio de reserva de asesorias.", "NodeJS (NestJS)");
             Container offersContext = gettingBetter.AddContainer("Offers Context", "Bounded Context del Microservicio de ofertas por parte de los coaches para con los jugadores.", "NodeJS (NestJS)");
@@ -83,18 +83,18 @@ namespace c4_model_design
             webApplication.Uses(apiRest, "API Request", "JSON/HTTPS");
 
             apiRest.Uses(userContext, "", "");
-            apiRest.Uses(clasesContext, "", "");
+            apiRest.Uses(classContext, "", "");
             apiRest.Uses(paymentContext, "", "");
             apiRest.Uses(reservationContext, "", "");
             apiRest.Uses(offersContext, "", "");
             
             userContext.Uses(database, "", "JDBC");
-            clasesContext.Uses(database, "", "JDBC");
+            classContext.Uses(database, "", "JDBC");
             paymentContext.Uses(database, "", "JDBC");
             reservationContext.Uses(database, "", "JDBC");
             offersContext.Uses(database, "", "JDBC");
             
-            clasesContext.Uses(trackerGg, "API Request", "JSON/HTTPS");
+            classContext.Uses(trackerGg, "API Request", "JSON/HTTPS");
             paymentContext.Uses(paypalApi, "API Request", "JSON/HTTPS");
 
             // Tags
@@ -104,7 +104,7 @@ namespace c4_model_design
             apiRest.AddTags("APIRest");
             database.AddTags("Database");
             userContext.AddTags("FlightPlanningContext");
-            clasesContext.AddTags("AirportContext");
+            classContext.AddTags("AirportContext");
             paymentContext.AddTags("AircraftInventoryContext");
             reservationContext.AddTags("VaccinesInventoryContext");
             offersContext.AddTags("MonitoringContext");
@@ -115,7 +115,7 @@ namespace c4_model_design
             styles.Add(new ElementStyle("APIRest") { Shape = Shape.RoundedBox, Background = "#0000ff", Color = "#ffffff", Icon = "" });
             styles.Add(new ElementStyle("Database") { Shape = Shape.Cylinder, Background = "#ff0000", Color = "#ffffff", Icon = "" });
             styles.Add(new ElementStyle("UserContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("ClasesContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("classContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("PaymentContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("ReservationContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
             styles.Add(new ElementStyle("OffersContext") { Shape = Shape.Hexagon, Background = "#facc2e", Icon = "" });
@@ -125,57 +125,43 @@ namespace c4_model_design
             containerView.AddAllElements();
 
             // 3. Diagrama de Componentes
-            /*
-            Component domainLayer = monitoringContext.AddComponent("Domain Layer", "", "NodeJS (NestJS)");
-            Component monitoringController = monitoringContext.AddComponent("Monitoring Controller", "REST API endpoints de monitoreo.", "NodeJS (NestJS) REST Controller");
-            Component monitoringApplicationService = monitoringContext.AddComponent("Monitoring Application Service", "Provee métodos para el monitoreo, pertenece a la capa Application de DDD", "NestJS Component");
-            Component flightRepository = monitoringContext.AddComponent("Flight Repository", "Información del vuelo", "NestJS Component");
-            Component vaccineLoteRepository = monitoringContext.AddComponent("VaccineLote Repository", "Información de lote de vacunas", "NestJS Component");
-            Component locationRepository = monitoringContext.AddComponent("Location Repository", "Ubicación del vuelo", "NestJS Component");
-            Component aircraftSystemFacade = monitoringContext.AddComponent("Aircraft System Facade", "", "NestJS Component");
-
-            apiRest.Uses(monitoringController, "", "JSON/HTTPS");
-            monitoringController.Uses(monitoringApplicationService, "Invoca métodos de monitoreo");
-            monitoringController.Uses(aircraftSystemFacade, "Usa");
-            monitoringApplicationService.Uses(domainLayer, "Usa", "");
-            monitoringApplicationService.Uses(flightRepository, "", "JDBC");
-            monitoringApplicationService.Uses(vaccineLoteRepository, "", "JDBC");
-            monitoringApplicationService.Uses(locationRepository, "", "JDBC");
-            flightRepository.Uses(database, "", "JDBC");
-            vaccineLoteRepository.Uses(database, "", "JDBC");
-            locationRepository.Uses(database, "", "JDBC");
-            locationRepository.Uses(googleMaps, "", "JSON/HTTPS");
-            aircraftSystemFacade.Uses(aircraftSystem, "JSON/HTTPS");
+            /* Class Bounded Context */
+            Component classController = classContext.AddComponent("Class Controller", "Controlador que provee los Rest API para la gestión de clases", "");
+            Component classService = classContext.AddComponent("Class Service", "Provee los métodos para la inscripción y gestión de las clases", "");
+            Component classRepository = classContext.AddComponent("Class Repository", "Repositorio que provee métodos para la persistencia de los datos de las clases", "");
+            Component classDomainModel = classContext.AddComponent("Class Domain Model", "Contiene todas las entidades del Bounded Context", "");
             
+
+            apiRest.Uses(classController, "", "Lammada API a");
+            classController.Uses(classService, "Llamada a los métodos del service");
+            classService.Uses(classRepository, "Llamada a los métodos de persistencia del repository");
+            classDomainModel.Uses(classRepository, "Usa", "Conforma");
+            classRepository.Uses(database, "", "Lee desde y escribe a");
+            classService.Uses(trackerGg, "", "Usa");
+           
+
             // Tags
-            domainLayer.AddTags("DomainLayer");
-            monitoringController.AddTags("MonitoringController");
-            monitoringApplicationService.AddTags("MonitoringApplicationService");
-            flightRepository.AddTags("FlightRepository");
-            vaccineLoteRepository.AddTags("VaccineLoteRepository");
-            locationRepository.AddTags("LocationRepository");
-            aircraftSystemFacade.AddTags("AircraftSystemFacade");
+            classController.AddTags("ClassController");
+            classService.AddTags("ClassService");
+            classRepository.AddTags("ClassRepository");
+            classDomainModel.AddTags("ClassDomainModel");
             
-            styles.Add(new ElementStyle("DomainLayer") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("MonitoringController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("MonitoringApplicationService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("MonitoringDomainModel") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("FlightStatus") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("FlightRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("VaccineLoteRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("LocationRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
-            styles.Add(new ElementStyle("AircraftSystemFacade") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            
+            styles.Add(new ElementStyle("ClassController") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ClassService") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ClassRepository") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            styles.Add(new ElementStyle("ClassDomainModel") { Shape = Shape.Component, Background = "#facc2e", Icon = "" });
+            
 
-            ComponentView componentView = viewSet.CreateComponentView(monitoringContext, "Components", "Component Diagram");
+            ComponentView componentView = viewSet.CreateComponentView(classContext, "Components", "Component Diagram");
             componentView.PaperSize = PaperSize.A4_Landscape;
             componentView.Add(mobileApplication);
             componentView.Add(webApplication);
             componentView.Add(apiRest);
             componentView.Add(database);
-            componentView.Add(aircraftSystem);
-            componentView.Add(googleMaps);
+            componentView.Add(trackerGg);
             componentView.AddAllComponents();
-            */
+            
 
             structurizrClient.UnlockWorkspace(workspaceId);
             structurizrClient.PutWorkspace(workspaceId, workspace);
